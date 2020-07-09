@@ -121,7 +121,7 @@ const buildGridSchema = (arrayGrid) => {
       // create new grid schema entry like example above
       // give it a type of 'cell' and an ID of lineIndex-columnIndex
 
-      // if cell above is undefined OR the cell to the left is undefined:
+      // if cell above is undefined OR (the cell to the left is undefined AND cell above is a row separator):
       // create a new column and give it an ID
       // add the current cell ID to the column's children array
       // create a new row and give it an ID
