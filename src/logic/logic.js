@@ -60,6 +60,7 @@ const buildgridTree = (gridStructureArray, gridItems) => {
 
   const rootNode = {
     type: "root_node",
+    id: "root_node",
     children: [],
   };
 

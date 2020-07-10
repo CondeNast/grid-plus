@@ -23,6 +23,7 @@ describe("parseGrid()", () => {
       const expected = [
         {
           type: "root_node",
+          id: "root_node",
           children: [],
         },
       ];
@@ -43,6 +44,7 @@ describe("parseGrid()", () => {
       const expected = [
         {
           type: "root_node",
+          id: "root_node",
           children: ["row-0-0"],
         },
         {
@@ -81,6 +83,7 @@ describe("parseGrid()", () => {
       const expected = [
         {
           type: "root_node",
+          id: "root_node",
           children: ["row-0-0"],
         },
         {
@@ -128,6 +131,7 @@ describe("parseGrid()", () => {
       const expected = [
         {
           type: "root_node",
+          id: "root_node",
           children: ["row-0-0"],
         },
         {
@@ -203,6 +207,7 @@ describe("parseGrid()", () => {
       const expected = [
         {
           type: "root_node",
+          id: "root_node",
           children: ["row-0-0", "row-3-0"],
         },
         {
@@ -297,6 +302,7 @@ describe("parseGrid()", () => {
       const expected = [
         {
           type: "root_node",
+          id: "root_node",
           children: ["row-0-0", "row-2-0", "row-4-0"],
         },
         {
@@ -397,6 +403,7 @@ describe("parseGrid()", () => {
       const expected = [
         {
           type: "root_node",
+          id: "root_node",
           children: ["row-0-0", "row-3-0", "row-5-0"],
         },
         {
@@ -503,6 +510,7 @@ describe("parseGrid()", () => {
       const expected = [
         {
           type: "root_node",
+          id: "root_node",
           children: ["row-0-0"],
         },
         {
