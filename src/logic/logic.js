@@ -1,15 +1,10 @@
-// split grid into rows
-// split rows into columns
-// convert inter-column and cross-column spanning cells into single cell with multiple FR units
+// convert inter-column and cross-column spanning gridItems into single cell with multiple FR units
 // combine co-located columns
 // create media queries for each config object
 // add flex order and display: none; for each config object
 // calculate if any columns can be combined to reach goal order e.g. mobile
 
-export const parseGrid = (templateStrings, ...cells) => {
-  if (cells.length === 0) return [];
-  if (cells.length === 1) return cells;
-
+export const parseGrid = (templateStrings, ...gridItems) => {
   const newlineTag = "_NEWLINE_";
 
   const templateStrings__noBookends = trimBookends(templateStrings);
@@ -18,29 +13,26 @@ export const parseGrid = (templateStrings, ...cells) => {
     newlineTag
   );
 
-  const cellsAndSeparators = mergeCellsAndSeparators(
-    cells,
+  const gridItemsAndSeparators = mergegridItemsAndSeparators(
+    gridItems,
     templateStrings__newlineTags
   );
 
-  const cellsAndSeparators__splitSeparators = splitSeparators(
-    cellsAndSeparators
+  const gridItemsAndSeparators__splitSeparators = splitSeparators(
+    gridItemsAndSeparators
   );
 
-  const cellsAndSeparators__noSpaces = trimSpaces(
-    cellsAndSeparators__splitSeparators
+  const gridItemsAndSeparators__noSpaces = trimSpaces(
+    gridItemsAndSeparators__splitSeparators
   );
-  const arrayGrid = splitByNewline(cellsAndSeparators__noSpaces, newlineTag);
-  console.log(arrayGrid);
-  const gridSchema = buildGridSchema(arrayGrid);
 
-  // const a = [
-  //   { type: "row", items: [{ type: "column", items: [1] }] },
-  //   { type: "row", items: [{ type: "column", items: [2] }] },
-  //   { type: "row", items: [{ type: "column", items: [3] }] },
-  // ];
+  const gridStructureArray = splitByNewline(
+    gridItemsAndSeparators__noSpaces,
+    newlineTag
+  );
+  const gridTree = buildgridTree(gridStructureArray, gridItems);
 
-  return gridSchema;
+  return gridTree;
 };
 
 const trimBookends = (strings) => {
@@ -70,20 +62,20 @@ const splitSeparators = (gridEntries) => {
   return output;
 };
 
-const mergeCellsAndSeparators = (cells, separators) => {
+const mergegridItemsAndSeparators = (gridItems, separators) => {
   const mergedArray = [];
-  cells.forEach((cell, index) => (mergedArray[index * 2] = cell));
+  gridItems.forEach((cell, index) => (mergedArray[index * 2] = cell));
   separators.forEach(
     (separator, index) => (mergedArray[index * 2 + 1] = separator)
   );
   return mergedArray;
 };
 
-const splitByNewline = (cellsAndSeparators, newlineTag) => {
+const splitByNewline = (gridItemsAndSeparators, newlineTag) => {
   const linePartitions = [[]];
   let currentPartition = 0;
 
-  cellsAndSeparators.forEach((cellOrSeparator) => {
+  gridItemsAndSeparators.forEach((cellOrSeparator) => {
     if (cellOrSeparator === newlineTag) {
       linePartitions.push([]);
       currentPartition++;
@@ -99,95 +91,95 @@ const splitByNewline = (cellsAndSeparators, newlineTag) => {
 const tagNewlines = (strings, newlineTag) =>
   strings.map((string) => string.replace(/(\n)+/g, newlineTag));
 
-const buildGridSchema = (arrayGrid) => {
-  const gridSchema = [
-    {
-      type: "root_node",
-      children: []
-    }
-  ];
+const buildgridTree = (gridStructureArray, gridItems) => {
+  // set up the grid tree with a root node
+  const gridTree = [];
 
-  // const example = [
-  //   {
-  //     type: "column",
-  //     id: "2345",
-  //     children: ["2345", "346"],
-  //   }
-  // ]
+  const rootNode = {
+    type: "root_node",
+    children: [],
+  };
 
-  arrayGrid.forEach((gridLine, lineIndex) => {
+  gridTree.push(rootNode);
+
+  gridStructureArray.forEach((gridLine, lineIndex) => {
     gridLine.forEach((cell, columnIndex) => {
-      
-      // create new grid schema entry like example above
-      // give it a type of 'cell' and an ID of lineIndex-columnIndex
-
-      // if cell above is undefined OR (the cell to the left is undefined AND cell above is a row separator):
-      // create a new column and give it an ID
-      // add the current cell ID to the column's children array
-      // create a new row and give it an ID
-      // add the new column ID to the new row's children array
-      // add the new row's ID to the root node's children array
-
-      // if cell above is another cell:
-      // find the column that lists that cell above in its children IDs
-      // add the curent cell ID to the same column's children
-
-      // if cell above is a row separator: (SHOULD ALWAYS BE THE CASE. MIGHT NOT NEED THE IF.)
-      // find the column that lists that cell TWO the left in its children IDs
-      // find the row that lists that column in its children IDs
-      // create a new column and give it an ID
-      // add the current cell ID to the column's children array
-      // add the new column ID to the existing row's children array
-
-
-      /////// OLD CODE
-      // const lineAbove = arrayGrid[lineIndex + 1];
-      // const cellAbove = lineAbove ? lineAbove[columnIndex] : undefined;
-      // if (cellAbove !== "-" && cellAbove !== undefined) {
-      //   const targetColumnForNewCell = gridSchema.find(entry => entry.children.includes(cellAbove.id));
-      //   targetColumnForNewCell.items.push(cell);
-      //   // ADD CELL ROW ID AND COLUMN ID TO MATCH CELL ABOVE
-      // } else {
-      //   const cellToTheLeft = arrayGrid[lineIndex][columnIndex - 1];
-      //   let targetRowForNewColumn;
-      //   let cellRowId;
-
-      //   if (cellToTheLeft === "|") {
-      //     const cellTwoToTheLeft = arrayGrid[lineIndex][columnIndex - 2];
-      //     targetRowForNewColumn = getRowById(cellTwoToTheLeft.rowId);
-      //     cell.rowId = cellTwoToTheLeft.rowId;
-      //   } else {
-      //     targetRowForNewColumn = {
-      //       type: "row",
-      //       rowId: TODO_RANDOM,
-      //       items: [],
-      //     };
-      //     gridSchema.push(targetRowForNewColumn);
-      //   }
-
-      //   targetRowForNewColumn.items.push({
-      //     type: "column",
-      //     columnId: TODO_RANDOM,
-      //     items: [cell],
-      //   });
-
-        // ADD CELL ROW ID TO MATCH CELL TO THE LEFT, OR RANDOM IF NEW
-        // ADD COLUMN ID TO BE NEW RANDOM ONE
+      // if separator, skip
+      if (!gridItems.includes(cell)) {
+        return;
       }
+
+      // every new grid item will require some common actions
+      const cellCoordinates = `${lineIndex}-${columnIndex}`;
+
+      const newContent = {
+        type: "content",
+        id: cellCoordinates,
+        children: cell,
+      };
+
+      gridTree.push(newContent);
+
+      const lineAbove = gridStructureArray[lineIndex - 1];
+      const cellAbove = lineAbove ? lineAbove[columnIndex] : undefined;
+      const cellToTheLeft = gridLine[columnIndex - 1];
+
+      // if new row and new column, create those entries and link together
+      if (
+        (cellToTheLeft === undefined && cellAbove === undefined) ||
+        (cellToTheLeft === undefined && cellAbove === "-")
+      ) {
+        const newColumn = {
+          type: "column",
+          id: `col-${cellCoordinates}`,
+          children: [newContent.id],
+        };
+
+        const newRow = {
+          type: "row",
+          id: `row-${cellCoordinates}`,
+          children: [newColumn.id],
+        };
+
+        rootNode.children.push(newRow.id);
+        gridTree.push(newRow, newColumn);
+        return;
+      }
+
+      // if cell above is a grid item (not a separator), add the new grid item to that column
+      if (gridItems.includes(cellAbove)) {
+        const cellAboveCoordinates = `${lineIndex - 1}-${columnIndex}`;
+        const targetColumn = gridTree.find(
+          (entry) =>
+            entry.type === "column" &&
+            entry.children.includes(cellAboveCoordinates)
+        );
+        targetColumn.children.push(newContent.id);
+        return;
+      }
+
+      // else create a new column on the current row
+      const cellTwoToTheLeftCoordinates = `${lineIndex}-${columnIndex - 2}`;
+      const columnToTheLeft = gridTree.find(
+        (entry) =>
+          entry.type === "column" &&
+          entry.children.includes(cellTwoToTheLeftCoordinates)
+      );
+      const targetRow = gridTree.find(
+        (entry) =>
+          entry.type === "row" && entry.children.includes(columnToTheLeft.id)
+      );
+
+      const newColumn = {
+        type: "column",
+        id: `col-${cellCoordinates}`,
+        children: [newContent.id],
+      };
+
+      targetRow.children.push(newColumn.id);
+      gridTree.push(newColumn);
     });
-
-    // const gridLineWithoutSeparators = gridLine.filter((cell) => cell !== "|");
-
-    // gridLineWithoutSeparators.forEach((cell) => {
-    //   newGridSchemaEntry.items.push({ type: "column", items: [cell] });
-    // });
-
-    // gridSchema.push(newGridSchemaEntry);
   });
 
-  return gridSchema;
+  return gridTree;
 };
-
-const splitByColumn = (inputGrid) => {};
-
-const splitByRow = (inputGrid) => {};
