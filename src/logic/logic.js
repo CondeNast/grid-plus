@@ -1,3 +1,12 @@
+import {
+  trimBookends,
+  trimSpaces,
+  tagNewlines,
+  mergegridItemsAndSeparators,
+  splitByNewline,
+  splitSeparators,
+} from "./utils";
+
 // convert inter-column and cross-column spanning gridItems into single cell with multiple FR units
 // combine co-located columns
 // create media queries for each config object
@@ -5,6 +14,17 @@
 // calculate if any columns can be combined to reach goal order e.g. mobile
 
 export const parseGrid = (templateStrings, ...gridItems) => {
+  const gridStructureArray = visualGridToStructureArray(
+    templateStrings,
+    gridItems
+  );
+
+  const gridTree = buildgridTree(gridStructureArray, gridItems);
+
+  return gridTree;
+};
+
+const visualGridToStructureArray = (templateStrings, gridItems) => {
   const newlineTag = "_NEWLINE_";
 
   const templateStrings__noBookends = trimBookends(templateStrings);
@@ -30,66 +50,9 @@ export const parseGrid = (templateStrings, ...gridItems) => {
     gridItemsAndSeparators__noSpaces,
     newlineTag
   );
-  const gridTree = buildgridTree(gridStructureArray, gridItems);
 
-  return gridTree;
+  return gridStructureArray;
 };
-
-const trimBookends = (strings) => {
-  const trimmedStrings = [...strings];
-  trimmedStrings.shift();
-  trimmedStrings.pop();
-  return trimmedStrings;
-};
-
-const trimSpaces = (entries) =>
-  entries
-    .map((entry) => (typeof entry === "string" ? entry.trim() : entry))
-    .filter((entry) => entry !== "");
-
-const splitSeparators = (gridEntries) => {
-  const output = [];
-
-  gridEntries.forEach((entry) => {
-    if (typeof entry === "string") {
-      const split = entry.split(/(-)+/);
-      output.push(...split);
-    } else {
-      output.push(entry);
-    }
-  });
-
-  return output;
-};
-
-const mergegridItemsAndSeparators = (gridItems, separators) => {
-  const mergedArray = [];
-  gridItems.forEach((cell, index) => (mergedArray[index * 2] = cell));
-  separators.forEach(
-    (separator, index) => (mergedArray[index * 2 + 1] = separator)
-  );
-  return mergedArray;
-};
-
-const splitByNewline = (gridItemsAndSeparators, newlineTag) => {
-  const linePartitions = [[]];
-  let currentPartition = 0;
-
-  gridItemsAndSeparators.forEach((cellOrSeparator) => {
-    if (cellOrSeparator === newlineTag) {
-      linePartitions.push([]);
-      currentPartition++;
-      return;
-    }
-
-    linePartitions[currentPartition].push(cellOrSeparator);
-  });
-
-  return linePartitions;
-};
-
-const tagNewlines = (strings, newlineTag) =>
-  strings.map((string) => string.replace(/(\n)+/g, newlineTag));
 
 const buildgridTree = (gridStructureArray, gridItems) => {
   // set up the grid tree with a root node
