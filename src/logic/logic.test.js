@@ -379,6 +379,168 @@ describe("parseGrid()", () => {
     });
   });
 
+  describe("given a grid with different column structures in each row", () => {
+    let result;
+
+    beforeEach(() => {
+      result = parseGrid`
+        ${1} | ${2}
+        ${3} | ${4}
+        ------------------
+        ${5} | ${6} | ${7}
+        ------------------
+        ${8}
+      `;
+    });
+
+    it("should return the list of grid items in each column and row as specified", () => {
+      const expected = [
+        {
+          type: "root_node",
+          children: ["row-0-0", "row-3-0", "row-5-0"],
+        },
+        {
+          type: "row",
+          id: "row-0-0",
+          children: ["col-0-0", "col-0-2"],
+        },
+        {
+          type: "row",
+          id: "row-3-0",
+          children: ["col-3-0", "col-3-2", "col-3-4"],
+        },
+        {
+          type: "row",
+          id: "row-5-0",
+          children: ["col-5-0"],
+        },
+        {
+          type: "column",
+          id: "col-0-0",
+          children: ["0-0", "1-0"],
+        },
+        {
+          type: "column",
+          id: "col-0-2",
+          children: ["0-2", "1-2"],
+        },
+        {
+          type: "column",
+          id: "col-3-0",
+          children: ["3-0"],
+        },
+        {
+          type: "column",
+          id: "col-3-2",
+          children: ["3-2"],
+        },
+        {
+          type: "column",
+          id: "col-3-4",
+          children: ["3-4"],
+        },
+        {
+          type: "column",
+          id: "col-5-0",
+          children: ["5-0"],
+        },
+        {
+          type: "content",
+          id: "0-0",
+          children: 1,
+        },
+        {
+          type: "content",
+          id: "0-2",
+          children: 2,
+        },
+        {
+          type: "content",
+          id: "1-0",
+          children: 3,
+        },
+        {
+          type: "content",
+          id: "1-2",
+          children: 4,
+        },
+        {
+          type: "content",
+          id: "3-0",
+          children: 5,
+        },
+        {
+          type: "content",
+          id: "3-2",
+          children: 6,
+        },
+        {
+          type: "content",
+          id: "3-4",
+          children: 7,
+        },
+        {
+          type: "content",
+          id: "5-0",
+          children: 8,
+        },
+      ];
+      expect(sortByGridId(result)).toEqual(sortByGridId(expected));
+    });
+  });
+
+  describe("given a grid with duplicate column entries that appear consecutively", () => {
+    let result;
+
+    beforeEach(() => {
+      result = parseGrid`
+        ${1} | ${2}
+        ${1} | ${3}
+      `;
+    });
+
+    it("should not return the duplicated consecutive column entries", () => {
+      const expected = [
+        {
+          type: "root_node",
+          children: ["row-0-0"],
+        },
+        {
+          type: "row",
+          id: "row-0-0",
+          children: ["col-0-0", "col-0-2"],
+        },
+        {
+          type: "column",
+          id: "col-0-0",
+          children: ["0-0"],
+        },
+        {
+          type: "column",
+          id: "col-0-2",
+          children: ["0-2", "1-2"],
+        },
+        {
+          type: "content",
+          id: "0-0",
+          children: 1,
+        },
+        {
+          type: "content",
+          id: "0-2",
+          children: 2,
+        },
+        {
+          type: "content",
+          id: "1-2",
+          children: 3,
+        },
+      ];
+
+      expect(sortByGridId(result)).toEqual(sortByGridId(expected));
+    });
+  });
+
   // describe("given a grid without any content between row separators", () => {
   //   let result;
 

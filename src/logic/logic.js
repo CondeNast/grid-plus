@@ -118,8 +118,6 @@ const buildgridTree = (gridStructureArray, gridItems) => {
         children: cell,
       };
 
-      gridTree.push(newContent);
-
       const lineAbove = gridStructureArray[lineIndex - 1];
       const cellAbove = lineAbove ? lineAbove[columnIndex] : undefined;
       const cellToTheLeft = gridLine[columnIndex - 1];
@@ -142,19 +140,24 @@ const buildgridTree = (gridStructureArray, gridItems) => {
         };
 
         rootNode.children.push(newRow.id);
-        gridTree.push(newRow, newColumn);
+        gridTree.push(newRow, newColumn, newContent);
         return;
       }
 
       // if cell above is a grid item (not a separator), add the new grid item to that column
       if (gridItems.includes(cellAbove)) {
-        const cellAboveCoordinates = `${lineIndex - 1}-${columnIndex}`;
-        const targetColumn = gridTree.find(
-          (entry) =>
-            entry.type === "column" &&
-            entry.children.includes(cellAboveCoordinates)
-        );
-        targetColumn.children.push(newContent.id);
+        // if the cell above has the same content, do not duplicate the column entry
+        if (cell !== cellAbove) {
+          const cellAboveCoordinates = `${lineIndex - 1}-${columnIndex}`;
+          const targetColumn = gridTree.find(
+            (entry) =>
+              entry.type === "column" &&
+              entry.children.includes(cellAboveCoordinates)
+          );
+
+          targetColumn.children.push(newContent.id);
+          gridTree.push(newContent);
+        }
         return;
       }
 
@@ -177,7 +180,7 @@ const buildgridTree = (gridStructureArray, gridItems) => {
       };
 
       targetRow.children.push(newColumn.id);
-      gridTree.push(newColumn);
+      gridTree.push(newColumn, newContent);
     });
   });
 
