@@ -4,7 +4,17 @@ import "./App.css";
 import { parseGrid } from "./logic/logic";
 import { buildGridJsx } from "./logic/logic-jsx";
 
-const GridRoot = styled("div")``;
+const GridRoot = styled("div")`
+  @media only screen and (max-width: 1200px) {
+    display: none;
+  }
+`;
+
+const GridRootSmall = styled("div")`
+  @media only screen and (min-width: 1201px) {
+    display: none;
+  }
+`;
 
 const Row = styled("div")`
   display: flex;
@@ -45,17 +55,23 @@ const MainArticle = styled(Content)`
 `;
 
 const ContentBig = styled(Content)`
-  height: 300px;
+  height: 450px;
 `;
 const ContentMedium = styled(Content)`
-  height: 250px;
+  height: 350px;
 `;
 const ContentSmall = styled(Content)`
-  height: 200px;
+  height: 300px;
 `;
 
 const AdvertBox = styled(Content)`
-  height: 400px;
+  height: 500px;
+  background-image: linear-gradient(
+    130deg,
+    #ffbc00 0%,
+    #06f1e6 85%,
+    #00f3ff 100%
+  );
 `;
 
 const Content1 = () => <ContentBig>1</ContentBig>;
@@ -63,10 +79,37 @@ const Content2 = () => <ContentMedium>2</ContentMedium>;
 const Content3 = () => <ContentSmall>3</ContentSmall>;
 const Content4 = () => <ContentBig>4</ContentBig>;
 const Advert = () => <AdvertBox>ADVERT</AdvertBox>;
+const Advert2 = () => <AdvertBox>ADVERT 2</AdvertBox>;
 const Content5 = () => <ContentBig>5</ContentBig>;
 const Content6 = () => <ContentMedium>6</ContentMedium>;
 
+// const gridTreeALTERNATE = parseGrid`
+//   ${Content1} | ${Content2}
+//   ${Content3} | ${Advert}
+//   ${Content4} | ${Content5}
+//   ${Advert2}  | ${Content6}
+// `;
+
+// const gridTreeNESTED = parseGrid`
+//   ${Content1} | ${Content2} | ${Content3}
+//               | ${Content4} | ${Content5}
+//               | -------------------------
+//               |  ${Advert}
+//               | -------------------------
+//               | ${Content6} | ${Content7}
+// `;
+
+// GRID FOR WIDE VIEWPORTS
 const gridTree = parseGrid`
+  ${Content1}
+  ------------------------
+  ${Content3} | ${Advert2}
+  ${Advert}   | ${Content4}
+  ${Content5} | ${Content6}
+`;
+
+// GRID FOR NARROW VIEWPORTS
+const gridTreeSmall = parseGrid`
   ${Content1} | ${Content2}
   ${Content3} | ${Content4}
   -------------------------
@@ -82,6 +125,13 @@ const Grid = buildGridJsx({
   Column,
 });
 
+const GridSmall = buildGridJsx({
+  gridTree: gridTreeSmall,
+  GridRoot: GridRootSmall,
+  Row,
+  Column,
+});
+
 function App() {
   return (
     <div className="App">
@@ -90,6 +140,7 @@ function App() {
       <div class="container">
         <MainArticle>Article 1</MainArticle>
         <Grid />
+        <GridSmall />
       </div>
 
       <div class="surrounding">More content</div>
