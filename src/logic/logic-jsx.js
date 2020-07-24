@@ -9,7 +9,6 @@ export const buildGridJsx = ({ gridTree, GridRoot, Row, Column }) => {
 
   const getJsxChildren = (parentNode) => {
     if (parentNode.type === "root_node") {
-      console.log("ROOT", parentNode);
       return () => (
         <GridRoot>
           {parentNode.children.map((childId) =>
@@ -20,7 +19,6 @@ export const buildGridJsx = ({ gridTree, GridRoot, Row, Column }) => {
     }
 
     if (parentNode.type === "row") {
-      console.log("ROW", parentNode);
       return () => (
         <Row key={parentNode.id}>
           {parentNode.children.map((childId) =>
@@ -31,7 +29,6 @@ export const buildGridJsx = ({ gridTree, GridRoot, Row, Column }) => {
     }
 
     if (parentNode.type === "column") {
-      console.log("COL", parentNode);
       return () => (
         <Column key={parentNode.id}>
           {parentNode.children.map((childId) =>
@@ -41,7 +38,6 @@ export const buildGridJsx = ({ gridTree, GridRoot, Row, Column }) => {
       );
     }
 
-    console.log("CONTENT", parentNode);
     return () => ({ ...parentNode.children(), key: parentNode.id });
   };
 
